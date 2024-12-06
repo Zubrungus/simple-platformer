@@ -4,7 +4,7 @@ let updateCount = 0;
 let drawCount = 0;
 let attackTime = 0;
 let flyers = [];
-let spawnFlyerTimer = 250;
+let spawnFlyerTimer = 150;
 
 const player = {
     x: 550,
@@ -91,11 +91,11 @@ function update() {
         }
 
         attackTime--;
-
     } else{
         player.isAttacking = false;
     }
 
+    //Position sword based on swing direction
     if(sword.swingDirection == "down"){
         sword.x = player.x + 7.5;
         sword.y = player.y + 45;
@@ -109,6 +109,42 @@ function update() {
         sword.x = player.x + 25;
         sword.y = player.y + 15;
     }
+
+    //Sword collision (doesn't seem to be working yet)
+    if(player.isAttacking){
+        for(let i = 0; i < flyers.length; i++){
+            if(sword.swingDirection == "left" || sword.swingDirection == "right"){
+                if(sword.x - sword.width > flyers[i].x && sword.x < flyers[i] + flyers[i].width && sword.y - sword.height > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
+                    player.velY = -1.5;
+                    flyers.splice(i, 1);
+                    i--;
+                }
+            } else{
+                if(sword.x - sword.height > flyers[i].x && sword.x < flyers[i] + flyers[i].width && sword.y - sword.width > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
+                    player.velY = -1.5;
+                    flyers.splice(i, 1);
+                    i--;
+                }
+            }
+            
+        }
+    }
+
+    //Move flyers, despawn if offscreen
+    for(let i = 0; i < flyers.length; i++){
+
+        if(flyers[i].facingLeft == true){
+            flyers[i].x--;
+        } else{
+            flyers[i].x++;
+        }
+
+        if(flyers[i].x <= -100 || flyers[i].x >= 1300){
+            flyers.splice(i, 1);
+            i--;
+        }
+    }
+
     updateCount++;
 }
 
@@ -120,7 +156,7 @@ function draw() {
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
     //Draw eye depending on direction
-    ctx.fillStyle = "#AA99DD"
+    ctx.fillStyle = "#DDCCEE"
     if (player.facing == "right"){
         ctx.fillRect(player.x + 20, player.y + 7, 5, 5)
     } else{
@@ -143,10 +179,9 @@ function draw() {
     }
 
     //draw flyers
-    
     for(let i = 0; i < flyers.length; i++){
         ctx.fillStyle = "#83254F";
-        ctx.fillRect(flyers[i].x, flyers[i].y, 70, 40);
+        ctx.fillRect(flyers[i].x, flyers[i].y, flyers[i].width, flyers[i].height);
     }
 
     //Debug holding jump
@@ -155,6 +190,7 @@ function draw() {
         ctx.fillRect(10, 10, 10, 10);
     }
     requestAnimationFrame(draw);
+
     drawCount++;
 }
 
@@ -176,18 +212,21 @@ function spawnFlyer(){
     let flyerX = 0;
     if(flyerFacingLeft)
     {
-        flyerX = 1130;
+        flyerX = 1201;
 
     } else{
-        flyerX = 0;
+        flyerX = -71;
     }
 
     flyers.push({
         x: flyerX,
-        y: 200 + Math.random() * 500,
-        facingLeft: flyerFacingLeft});
+        y: 250 + Math.random() * 500,
+        facingLeft: flyerFacingLeft,
+        width: 70,
+        height: 40
+    });
 
-    spawnFlyerTimer = 250;
+    spawnFlyerTimer = 200;
 }
 
 const keys = {};
@@ -197,12 +236,17 @@ document.addEventListener("keyup", (e) => keys[e.key] = false);
 setInterval(update,4);
 requestAnimationFrame(draw);
 
-
+/*
 setInterval(() => {
+    
     console.log("updates per second: " + updateCount);
     updateCount = 0;
 
     console.log("draws per second: " + drawCount);
     drawCount = 0;
+    
+
+    console.log("number of flyers: " + flyers.length);
 
   }, 1000)
+  */
