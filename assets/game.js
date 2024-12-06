@@ -3,6 +3,8 @@ const ctx = canvas.getContext("2d");
 let updateCount = 0;
 let drawCount = 0;
 let attackTime = 0;
+let flyers = [];
+let spawnFlyerTimer = 250;
 
 const player = {
     x: 550,
@@ -25,7 +27,7 @@ const sword = {
     swingDirection: "right"
 }
 
-const gravity = 0.013;
+const gravity = 0.019;
 
 
 function update() {
@@ -40,8 +42,8 @@ function update() {
     }
 
     // Jumping logic
-    if (player.holdingJump && keys.End && player.velY <= -1.25){
-        player.velY *= 1.01;
+    if (player.holdingJump && keys.End && player.velY >= -2.3){
+        player.velY -= 0.04;
     } else{
         player.holdingJump = false;
     }
@@ -52,6 +54,11 @@ function update() {
         player.velY = -1.3;
     }
 
+    if (spawnFlyerTimer != 0){
+        spawnFlyerTimer--;
+    } else{
+        spawnFlyer();
+    }
 
 
     // Attacking logic
@@ -135,14 +142,20 @@ function draw() {
         
     }
 
+    //draw flyers
+    
+    for(let i = 0; i < flyers.length; i++){
+        ctx.fillStyle = "#83254F";
+        ctx.fillRect(flyers[i].x, flyers[i].y, 70, 40);
+    }
+
     //Debug holding jump
     if(player.holdingJump)
     {
         ctx.fillRect(10, 10, 10, 10);
     }
-    
-    drawCount++;
     requestAnimationFrame(draw);
+    drawCount++;
 }
 
 function Attack() {
@@ -158,11 +171,30 @@ function Attack() {
 
 }
 
+function spawnFlyer(){
+    const flyerFacingLeft = Math.random() < 0.5;
+    let flyerX = 0;
+    if(flyerFacingLeft)
+    {
+        flyerX = 1130;
+
+    } else{
+        flyerX = 0;
+    }
+
+    flyers.push({
+        x: flyerX,
+        y: 200 + Math.random() * 500,
+        facingLeft: flyerFacingLeft});
+
+    spawnFlyerTimer = 250;
+}
+
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key] = true);
 document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-setInterval(update,1);
+setInterval(update,4);
 requestAnimationFrame(draw);
 
 
