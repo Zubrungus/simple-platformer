@@ -19,7 +19,7 @@ const player = {
     holdingJump: false
 };
 
-const sword = {
+let sword = {
     x: 100,
     y: 100,
     width: 40,
@@ -110,23 +110,20 @@ function update() {
         sword.y = player.y + 15;
     }
 
-    //Sword collision (doesn't seem to be working yet)
+    //Sword collision
     if(player.isAttacking){
         for(let i = 0; i < flyers.length; i++){
             if(sword.swingDirection == "left" || sword.swingDirection == "right"){
-                if(sword.x - sword.width > flyers[i].x && sword.x < flyers[i] + flyers[i].width && sword.y - sword.height > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
-                    player.velY = -1.5;
+                if(sword.x + sword.width > flyers[i].x && sword.x < flyers[i].x + flyers[i].width && sword.y + sword.height > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
+                    player.velY = -3;
                     flyers.splice(i, 1);
                     i--;
                 }
-            } else{
-                if(sword.x - sword.height > flyers[i].x && sword.x < flyers[i] + flyers[i].width && sword.y - sword.width > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
-                    player.velY = -1.5;
+            } else if(sword.x + sword.height > flyers[i].x && sword.x < flyers[i].x + flyers[i].width && sword.y + sword.width > flyers[i].y && sword.y < flyers[i].y + flyers[i].height){
+                    player.velY = -3;
                     flyers.splice(i, 1);
                     i--;
                 }
-            }
-            
         }
     }
 
@@ -165,13 +162,8 @@ function draw() {
     //Draw sword
     if (player.isAttacking) {
         ctx.fillStyle = "#eebbbb";
-        if (sword.swingDirection == "down"){
+        if (sword.swingDirection == "down" || sword.swingDirection == "up"){
             ctx.fillRect(sword.x, sword.y, sword.height, sword.width);
-        }else if (sword.swingDirection == "up"){
-            ctx.fillRect(sword.x, sword.y, sword.height, sword.width);
-        }
-        else if (sword.swingDirection == "left"){
-            ctx.fillRect(sword.x, sword.y, sword.width, sword.height);
         } else{
             ctx.fillRect(sword.x, sword.y, sword.width, sword.height);
         }
@@ -228,6 +220,7 @@ function spawnFlyer(){
 
     spawnFlyerTimer = 200;
 }
+
 
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key] = true);
